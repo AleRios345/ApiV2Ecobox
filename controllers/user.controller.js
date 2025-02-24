@@ -131,7 +131,7 @@ const profile = async (req, res) => {
       ok: true,
       message: "User profile information",
       information: user,
-      bottles_week,
+      bottles_week: bottles_week,
     });
   } catch (err) {
     console.error("An error ocurred user.controller.js", err);
