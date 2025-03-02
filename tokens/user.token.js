@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 import { SECRET_WORD } from "../config.js";
 
 const generateToken = (user) => {
+    console.log(user.id)
     const token = jwt.sign(
         {
             email: user.email,

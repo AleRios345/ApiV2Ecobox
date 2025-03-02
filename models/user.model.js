@@ -21,7 +21,10 @@ const createProfile = async ({
 };
 
 // Update user profile information
-const updateProfile = async (userId, { username, institution, icon_url,email,password }) => {
+const updateProfile = async (
+  userId,
+  { username, institution, icon_url, email, password }
+) => {
   const query = {
     text: `
       UPDATE users
@@ -72,7 +75,7 @@ const findOneByUsername = async (username) => {
   };
   const { rows } = await db.query(query);
   return rows[0];
-}
+};
 
 // Find user by username
 const informationByEmail = async (email) => {
@@ -91,9 +94,8 @@ const informationByEmail = async (email) => {
   return rows[0];
 };
 
-
 // Get weekly bottles statistics
-const getWeeklyBottles = async (userId) => {
+const getWeeklyBottles = async (idUser) => {
   const query = {
     text: `
       SELECT 
@@ -106,7 +108,7 @@ const getWeeklyBottles = async (userId) => {
         week_start = DATE_TRUNC('week', CURRENT_DATE)::DATE
       ORDER BY week_start;
     `,
-    values: [userId],
+    values: [idUser],
   };
   const { rows } = await db.query(query);
   return rows[0];
@@ -121,7 +123,6 @@ const updateBottlesAndWeeklyStats = async (userId, boottleCounts) => {
   const { rows } = await db.query(query);
   return rows[0];
 };
-
 
 const scoreBoardWeekly = async () => {
   const query = {
@@ -147,5 +148,5 @@ export const USER_MODEL = {
   getWeeklyBottles,
   updateBottlesAndWeeklyStats,
   findOneByUsername,
-  scoreBoardWeekly
+  scoreBoardWeekly,
 };

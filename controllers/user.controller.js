@@ -116,9 +116,11 @@ const profile = async (req, res) => {
   try {
     const email = req.email;
     const idUser = req.idUser;
+    console.log(idUser);
 
     const user = await USER_MODEL.informationByEmail(email);
     const bottles_week = await USER_MODEL.getWeeklyBottles(idUser);
+    console.log(bottles_week);
 
     if (!user) {
       return res.status(404).json({
@@ -147,33 +149,33 @@ const updateProfile = async (req, res) => {
     const idUser = req.idUser;
     const { username, institution, icon_url, email, password } = req.body;
 
-    // Check if the required fields are present
-    if (!username || !institution || !icon_url || !email || !password) {
+    // Check if the required fields (except password) are present
+    if (!username || !institution || !icon_url || !email) {
       return res.status(400).json({
         ok: false,
-        message: "The username, institution, icon_url, email and password are required",
+        message: "The username, institution, icon_url, and email are required",
       });
     }
 
-
-    // Check if the username is already in use
+    // Check if the username is already in use (excluding the current user's username)
     const usernameExists = await USER_MODEL.findOneByUsername(username);
-    if (usernameExists) {
+    if (usernameExists && usernameExists.id !== idUser) {
       return res.status(400).json({
         ok: false,
         message: "The username is already in use",
       });
     }
 
-    const hashed_password = await bcryptjs.hash(password, parseInt(SALTROUNDS));
+    // Create the update object
+    const updateData = { username, institution, icon_url, email };
 
-    const user = await USER_MODEL.updateProfile(idUser, {
-      username,
-      institution,
-      icon_url,
-      email,
-      password: hashed_password,
-    });
+    // If password is provided, hash it and add it to the update object
+    if (password) {
+      updateData.password = await bcryptjs.hash(password, parseInt(SALTROUNDS));
+    }
+
+    // Update user profile
+    const user = await USER_MODEL.updateProfile(idUser, updateData);
 
     if (!user) {
       return res.status(404).json({
@@ -188,10 +190,10 @@ const updateProfile = async (req, res) => {
       information: user,
     });
   } catch (err) {
-    console.error("An error ocurred user.controller.js", err);
+    console.error("An error occurred in user.controller.js", err);
     return res.status(500).json({
       ok: false,
-      message: "An error ocurred while trying to update the user profile",
+      message: "An error occurred while trying to update the user profile",
     });
   }
 };
@@ -245,12 +247,11 @@ const scoreboard = async (req, res) => {
     console.error("An error ocurred user.controller.js", err);
     return res.status(500).json({
       ok: false,
-      message: "An error ocurred while trying to get the scoreboard information",
+      message:
+        "An error ocurred while trying to get the scoreboard information",
     });
   }
-}
-
-
+};
 
 export const USER_CONTROLLER = {
   register,
@@ -258,5 +259,5 @@ export const USER_CONTROLLER = {
   profile,
   updateProfile,
   updateBottles,
-  scoreboard
+  scoreboard,
 };
